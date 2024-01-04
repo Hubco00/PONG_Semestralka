@@ -16,6 +16,7 @@ private:
     double currentPositionY;
     double initialPositionY;
     int playerScore = 0;
+    RectangleShape player;
 
 public:
     //Konstruktor a destruktor
@@ -32,9 +33,10 @@ public:
     void descend();
     void render(RenderWindow* window);
     void resetPosition();
+    FloatRect getGlobalBoundsOfPlayer() const;
 
     // Seter
-    void updateScore(int newScore) { playerScore = newScore; }
+    void plusScore();
 };
 
 
