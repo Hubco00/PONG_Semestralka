@@ -5,8 +5,8 @@
 #include "Ball.h"
 
 Pong::Ball::Ball(double startPosX, double startPosY) {
-    this->startPosX = startPosX;
-    this->startPosY = startPosY;
+    this->posX = startPosX;
+    this->posY = startPosY;
 }
 
 Vector2f Pong::Ball::getPosition() {
@@ -22,7 +22,6 @@ void Pong::Ball::setPositions(double x, double y) {
 }
 
 void Pong::Ball::move() {
-    this->ball.move(this->movementX,this->movementY);
 }
 
 
@@ -34,8 +33,8 @@ void Pong::Ball::draw(RenderWindow *window, double positionX, double positionY) 
 }
 
 void Pong::Ball::redrawToStartPos(double x, double y, int winner) {
-    this->setStartPosX(x);
-    this->setStartPosY(y);
+    this->setPosX(x);
+    this->setPosY(y);
 }
 
 
@@ -63,26 +62,26 @@ void Pong::Ball::setMovementYPLus() {
     this->movementY = +this->movementY;
 }
 
-double Pong::Ball::getStartPosX() const {
-    return this->startPosX;
+double Pong::Ball::getPosX() const {
+    return this->posX;
 }
 
-void Pong::Ball::setStartPosX(double startPosX) {
-    this->startPosX = startPosX;
+void Pong::Ball::setPosX(double movement) {
+    this->posX += movement;
 }
 
-double Pong::Ball::getStartPosY() const {
-    return this->startPosY;
+double Pong::Ball::getPosY() const {
+    return this->posY;
 }
 
-void Pong::Ball::setStartPosY(double startPosY) {
-    this->startPosY = startPosY;
+void Pong::Ball::setPosY(double movement) {
+    this->posY += movement;
 }
+
+
 
 void Pong::Ball::updateMovementOfBall(GamePlayer* player1, GamePlayer* player2, RenderWindow* window) {
     // Move the ball
-    this->ball.move(this->movementX, this->movementY);
-
     // Get ball position and bounds
     Vector2f ballPosition = this->ball.getPosition();
     FloatRect ballBounds = this->ball.getGlobalBounds();
@@ -112,13 +111,18 @@ void Pong::Ball::updateMovementOfBall(GamePlayer* player1, GamePlayer* player2, 
         float normalizedImpact = impactPoint / (player1Bounds.height / 2); // Normalize the impact to a range of -1 to 1
         const float MAX_ANGLE = 5.0f; // Max angle change
         this->movementY += normalizedImpact * MAX_ANGLE;
+
     }
+    setPosX(this->movementX);
+    setPosY(this->movementY);
+    this->ball.move(this->posX, this->posY);
 }
 
 
 FloatRect Pong::Ball::getBoundsOfBall() {
     return this->ball.getGlobalBounds();
 }
+
 
 
 

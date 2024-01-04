@@ -11,10 +11,10 @@ namespace Pong {
     class Ball {
     private:;
         CircleShape ball;
-        double movementX;
-        double movementY;
-        double startPosX;
-        double startPosY;
+        double movementX = 1;
+        double movementY = 1;
+        double posX;
+        double posY;
     public:
         Ball(double startPosX, double startPosY);
         Vector2f getPosition();
@@ -34,17 +34,15 @@ namespace Pong {
         void setMovementYMinus();
         void setMovementYPLus();
 
-        double getStartPosX() const;
+        double getPosX() const;
 
-        void setStartPosX(double startPosX);
+        void setPosX(double startPosX);
 
-        double getStartPosY() const;
+        double getPosY() const;
 
-        void setStartPosY(double startPosY);
+        void setPosY(double startPosY);
 
         void updateMovementOfBall(GamePlayer* player1, GamePlayer* player2, RenderWindow* window);
-
-
 
     };
 }

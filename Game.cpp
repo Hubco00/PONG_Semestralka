@@ -20,7 +20,7 @@ void Game::drawAll(RenderWindow *window) {
     this->player2 = new GamePlayer(width - 8, (this->height / 2) - 22);
     this->player1->render(window);
     this->player2->render(window);
-    this->ball->draw(window, this->ball->getStartPosX(), this->ball->getStartPosY());
+    this->ball->draw(window, this->ball->getPosX(), this->ball->getPosY());
 
     this->setFont(window);
     window->display();
@@ -76,7 +76,7 @@ void Game::Play(RenderWindow* window) {
         if(!end)
         {
             ball->updateMovementOfBall(this->player1, this->player2, window);
-            drawNew(window, this->ball->getMovementX(), this->ball->getMovementY());
+            drawNew(window, this->ball->getPosX(), this->ball->getPosY());
             if(this->ball->getPosition().x > window->getSize().x)
             {
                 this->player1->plusScore();
@@ -131,8 +131,8 @@ void Game::keyInput(Keyboard::Key key) {
         case Keyboard::R:
             if (this->end)
             {
-                this->ball->setStartPosX(0);
-                this->ball->setStartPosY(0);
+                this->ball->setPosX(0);
+                this->ball->setPosY(0);
                 player1->resetPosition();
                 player2->resetPosition();
                 player1->resetScore();
