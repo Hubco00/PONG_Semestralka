@@ -32,9 +32,9 @@ void Pong::Ball::draw(RenderWindow *window, double positionX, double positionY) 
     window->draw(this->ball);
 }
 
-void Pong::Ball::redrawToStartPos(double x, double y, int winner) {
-    this->setPosX(x);
-    this->setPosY(y);
+void Pong::Ball::redrawToStartPos(RenderWindow* window, double x, double y) {
+    this->posX = x;
+    this->posY = y;
 }
 
 

@@ -12,7 +12,7 @@ namespace Pong {
     private:;
         CircleShape ball;
         double movementX = 1;
-        double movementY = 1;
+        double movementY = 0;
         double posX;
         double posY;
     public:
@@ -22,7 +22,7 @@ namespace Pong {
         void setPositions(double x, double y);
         void move();
         void draw(RenderWindow * window,double positionX, double positionY);
-        void redrawToStartPos(double x, double y, int winner);
+        void redrawToStartPos(RenderWindow* window, double x, double y);
         FloatRect getBoundsOfBall();
         double getMovementX() const;
 
@@ -43,6 +43,7 @@ namespace Pong {
         void setPosY(double startPosY);
 
         void updateMovementOfBall(GamePlayer* player1, GamePlayer* player2, RenderWindow* window);
+
 
     };
 }

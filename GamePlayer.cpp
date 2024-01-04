@@ -30,7 +30,7 @@ void GamePlayer::descend()
 void GamePlayer::render(RenderWindow* window)
 {
     this->player.setSize(Vector2f(8, 45));
-    player.setPosition(initialPositionX,initialPositionY);
+    player.setPosition(currentPositionY,currentPositionY);
     player.setFillColor(Color::Yellow);
     window->draw(player);
 }
@@ -48,7 +48,7 @@ void GamePlayer::resetPosition()
 
 }
 
-FloatRect GamePlayer::getGlobalBoundsOfPlayer() const {
+FloatRect GamePlayer::getGlobalBoundsOfPlayer() {
     return player.getGlobalBounds();
 }
 

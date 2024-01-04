@@ -33,7 +33,7 @@ public:
     void descend();
     void render(RenderWindow* window);
     void resetPosition();
-    FloatRect getGlobalBoundsOfPlayer() const;
+    FloatRect getGlobalBoundsOfPlayer();
     void resetScore();
 
     // Seter
