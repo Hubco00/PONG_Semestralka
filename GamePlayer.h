@@ -11,8 +11,10 @@ using namespace sf;
 
 class GamePlayer {
 private:
-    Vector2f currentPosition;
-    Vector2f initialPosition;
+    double currentPositionX;
+    double initialPositionX;
+    double currentPositionY;
+    double initialPositionY;
     int playerScore = 0;
 
 public:
@@ -21,7 +23,8 @@ public:
     ~GamePlayer();
 
     //Getre ktore su cost kedze iba vytahuju data z premennych
-    Vector2f getPosition() const { return currentPosition; };
+    double getPositionX() const { return currentPositionX; };
+    double getPositionY() const { return currentPositionY; };
     int getScore() const { return playerScore; };
 
     void move(float deltaX, float deltaY);
