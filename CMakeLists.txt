@@ -7,7 +7,7 @@ set(SFML_DIR C:/SFML/lib/cmake/SFML)
 
 find_package(SFML COMPONENTS system window graphics audio network REQUIRED)
 
-add_executable(PONG_Semestralka main.cpp Ball.cpp Ball.h)
+add_executable(PONG_Semestralka main.cpp Ball.cpp Ball.h Game.cpp Game.h)
 
 target_link_libraries(PONG_Semestralka sfml-system sfml-window sfml-graphics sfml-audio)
 
