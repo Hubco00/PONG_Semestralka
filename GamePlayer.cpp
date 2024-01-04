@@ -30,7 +30,7 @@ void GamePlayer::descend()
 void GamePlayer::render(RenderWindow* window)
 {
     this->player.setSize(Vector2f(8, 45));
-    player.setPosition(currentPositionY,currentPositionY);
+    player.setPosition(currentPositionX,currentPositionY);
     player.setFillColor(Color::Yellow);
     window->draw(player);
 }
