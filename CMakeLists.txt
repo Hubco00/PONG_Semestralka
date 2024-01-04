@@ -1,11 +1,13 @@
-﻿# CMakeList.txt : CMake project for PONG_Semestralka, include source and define
-# project specific logic here.
-#
-cmake_minimum_required (VERSION 3.8)
-
+﻿cmake_minimum_required (VERSION 3.17)
 project ("PONG_Semestralka")
 
-# Add source to this project's executable.
-add_executable (PONG_Semestralka "PONG_Semestralka.cpp" "PONG_Semestralka.h")
+set(SFML_STATIC_LIBRARIES TRUE)
+set(CMAKE_CXX_STANDARD 14)
+set(SFML_DIR C:/SFML/lib/cmake/SFML)
 
-# TODO: Add tests and install targets if needed.
+find_package(SFML COMPONENTS system window graphics audio network REQUIRED)
+
+add_executable(PONG_Semestralka main.cpp Ball.cpp Ball.h)
+
+target_link_libraries(PONG_Semestralka sfml-system sfml-window sfml-graphics sfml-audio)
+
