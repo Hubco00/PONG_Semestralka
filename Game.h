@@ -24,6 +24,7 @@ public:
     ~Game();
     void drawAll(RenderWindow *window);
     void setFont(RenderWindow* window);
+    void keyInput(Keyboard::Key key);
 
 
 };

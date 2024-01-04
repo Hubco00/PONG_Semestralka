@@ -32,3 +32,37 @@ void Game::setFont(RenderWindow *window) {
     this->scorePlayer2.setFillColor(Color::White);
 
 }
+
+
+void Game::keyInput(Keyboard::Key key) {
+//pohyby W a S
+    switch (key) {
+        case Keyboard::W:
+            if (player1->getPositionY() > 0) {
+                player1->ascend();
+            } else if (player2->getPositionY() > 0){
+                player2->ascend();
+            }
+            break;
+        case Keyboard::S:
+            if (player1->getPositionY()+50 < height) {
+                player1->descend();
+            } else if (player2->getPositionY()+50 < height){
+                player2->descend();
+            }
+            break;
+        case Keyboard::R:
+            if (pause)
+            {
+                this->ball->setStartPosX(0);
+                this->ball->setStartPosY(0);
+                player1->resetPosition();
+                player2->resetPosition();
+                player1->setScore(0);
+                player2->setScore(0);
+                pause = false;
+            }
+        default:
+            break;
+    }
+}
