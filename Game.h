@@ -24,6 +24,9 @@ public:
     ~Game();
     void drawAll(RenderWindow *window);
     void setFont(RenderWindow* window);
+    void drawNew(RenderWindow* window, double x, double y);
+    void drawNewScore(RenderWindow* window);
+    void Play(RenderWindow* window);
 
 
 };
