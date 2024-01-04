@@ -27,7 +27,7 @@ public:
     void drawNew(RenderWindow* window, double x, double y);
     void drawNewScore(RenderWindow* window);
     void Play(RenderWindow* window);
-
+    void keyInput(Keyboard::Key key);
 
 };
 
