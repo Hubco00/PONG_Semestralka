@@ -6,26 +6,31 @@
 
 using namespace std;
 Game::Game() {
-    RenderWindow* window;
-    drawAll(window);
-    Play(window);
+    RenderWindow window;
+    this->end = false;
+    drawAll(&window);
+    Play(&window);
 }
 
 void Game::drawAll(RenderWindow *window) {
+    window->create(VideoMode(this->width, this->height), "Pong");
+    window->setFramerateLimit(60);
     this->ball = new Ball((this->width / 2), (this->height/2));
     this->player1 = new GamePlayer(0, (this->height / 2) - 22);
     this->player2 = new GamePlayer(width - 8, (this->height / 2) - 22);
-    window->create(VideoMode(this->width, this->height), "Pong");
-    window->setFramerateLimit(60);
     this->player1->render(window);
     this->player2->render(window);
     this->ball->draw(window, this->ball->getStartPosX(), this->ball->getStartPosY());
 
     this->setFont(window);
+    window->display();
 }
 
 void Game::setFont(RenderWindow *window) {
-    this->font.loadFromFile("Amatic.ttf");
+    if(!this->font.loadFromFile("../arial.ttf"))
+    {
+        cout << "NONO" << endl;
+    }
     this->scorePlayer1.setFont(this->font);
     this->scorePlayer2.setFont(this->font);
 
@@ -60,41 +65,40 @@ void Game::Play(RenderWindow* window) {
     while(window->isOpen())
     {
         Event event;
-        while(window->pollEvent(event))
-        {
-            if(event.type == Event::Closed)
-            {
+        while (window->pollEvent(event)) {
+            if (event.type == Event::Closed){
                 window->close();
             }
-            if(event.type == Event::KeyPressed)
-            {
-
+            if (event.type == Event::KeyPressed){
+                keyInput(event.key.code);
             }
         }
-        ball->updateMovementOfBall(this->player1, this->player2, window);
-        drawNew(window, this->ball->getMovementX(), this->ball->getMovementY());
-        if(this->ball->getPosition().x > window->getSize().x)
+        if(!end)
         {
-            this->player1->plusScore();
-            this->player1->resetPosition();
-            this->player2->resetPosition();
-            drawNewScore(window);
-            this->ball->setPositions(this->player1->getGlobalBoundsOfPlayer().width + 10, (window->getSize().y / 2) - (this->ball->getBoundsOfBall().height / 2));
-            this->ball->setMovementXPlus();
-            this->ball->setMovementYMinus();
+            ball->updateMovementOfBall(this->player1, this->player2, window);
+            drawNew(window, this->ball->getMovementX(), this->ball->getMovementY());
+            if(this->ball->getPosition().x > window->getSize().x)
+            {
+                this->player1->plusScore();
+                this->player1->resetPosition();
+                this->player2->resetPosition();
+                drawNewScore(window);
+                this->ball->setPositions(this->player1->getGlobalBoundsOfPlayer().width + 10, (window->getSize().y / 2) - (this->ball->getBoundsOfBall().height / 2));
+                this->ball->setMovementXPlus();
+                this->ball->setMovementYMinus();
 
+            }
+            else if(this->ball->getPosition().x < 0)
+            {
+                this->player2->plusScore();
+                this->player1->resetPosition();
+                this->player2->resetPosition();
+                drawNewScore(window);
+                this->ball->setPositions(window->getSize().x - (this->player1->getGlobalBoundsOfPlayer().width - 10) , (window->getSize().y / 2) - (this->ball->getBoundsOfBall().height / 2));
+                this->ball->setMovementXMinus();
+                this->ball->setMovementYPLus();
+            }
         }
-        else if(this->ball->getPosition().x < 0)
-        {
-            this->player2->plusScore();
-            this->player1->resetPosition();
-            this->player2->resetPosition();
-            drawNewScore(window);
-            this->ball->setPositions(window->getSize().x - (this->player1->getGlobalBoundsOfPlayer().width - 10) , (window->getSize().y / 2) - (this->ball->getBoundsOfBall().height / 2));
-            this->ball->setMovementXMinus();
-            this->ball->setMovementYPLus();
-        }
-
     }
 
 }
@@ -125,15 +129,15 @@ void Game::keyInput(Keyboard::Key key) {
             }
             break;
         case Keyboard::R:
-            if (pause)
+            if (this->end)
             {
                 this->ball->setStartPosX(0);
                 this->ball->setStartPosY(0);
                 player1->resetPosition();
                 player2->resetPosition();
-                player1->setScore(0);
-                player2->setScore(0);
-                pause = false;
+                player1->resetScore();
+                player2->resetScore();
+                this->end = false;
             }
         default:
             break;

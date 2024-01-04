@@ -19,6 +19,7 @@ private:
     Text scorePlayer1;
     Text scorePlayer2;
     Font font;
+    bool end;
 public:
     Game();
     ~Game();

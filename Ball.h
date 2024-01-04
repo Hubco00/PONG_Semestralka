@@ -42,7 +42,7 @@ namespace Pong {
 
         void setStartPosY(double startPosY);
 
-        void updateMovementOfBall(GamePlayer* player1, GamePlayer* player2, RenderWindow* window)
+        void updateMovementOfBall(GamePlayer* player1, GamePlayer* player2, RenderWindow* window);
 
 
 

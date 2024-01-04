@@ -34,6 +34,7 @@ public:
     void render(RenderWindow* window);
     void resetPosition();
     FloatRect getGlobalBoundsOfPlayer() const;
+    void resetScore();
 
     // Seter
     void plusScore();

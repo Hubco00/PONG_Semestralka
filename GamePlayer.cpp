@@ -56,4 +56,8 @@ void GamePlayer::plusScore() {
     this->playerScore++;
 }
 
+void GamePlayer::resetScore() {
+    this->playerScore = 0;
+}
+
 
