@@ -7,13 +7,29 @@
 
 #include <thread>
 #include "SFML/Network.hpp"
+#include <SFML/System.hpp>
+#include "GamePlayer.h"
 using namespace std;
 using namespace sf;
 
 class Connection {
 private:
-    thread listeningThread;
+    UdpSocket socket;
+    IpAddress ipAddress;
+    unsigned short port;
+    bool isServer;
+public:
+    Connection(unsigned short  port);
 
+    ~Connection();
+    void connect(IpAddress ipAddress);
+    void recievePacketPlayerInfo(GamePlayer* player, double posX);
+
+    void sendPacketPlayerInfo(double position);
+
+    const IpAddress &getIpAddress() const;
+
+    void setIpAddress(const IpAddress &ipAddress);
 };
 
 

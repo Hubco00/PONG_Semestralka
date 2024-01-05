@@ -4,10 +4,17 @@
 
 #ifndef PONG_SEMESTRALKA_GAME_H
 #define PONG_SEMESTRALKA_GAME_H
+#include <SFML/Network.hpp>
 #include "Ball.h"
 #include "GamePlayer.h"
+#include "PacketTypes.h"
+#include "Connection.h"
+#include <SFML/System.hpp>
+#include "thread"
+#include "mutex"
 
-
+#define PORT 50145
+using namespace std;
 using namespace Pong;
 class Game {
 private:
@@ -20,6 +27,9 @@ private:
     Text scorePlayer2;
     Font font;
     bool end;
+    PacketTypes packetTypes;
+    thread thread;
+    Connection* con;
 public:
     Game();
     ~Game();
@@ -29,6 +39,7 @@ public:
     void drawNewScore(RenderWindow* window);
     void Play(RenderWindow* window);
     void keyInput(Keyboard::Key key);
+    void connect();
 
 };
 

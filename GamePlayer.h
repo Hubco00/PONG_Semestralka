@@ -35,6 +35,7 @@ public:
     void resetPosition();
     FloatRect getGlobalBoundsOfPlayer();
     void resetScore();
+    void setPlayerPosition(int posX, int posY);
 
     // Seter
     void plusScore();

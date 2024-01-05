@@ -9,7 +9,15 @@ Game::Game() {
     RenderWindow window;
     this->end = false;
     drawAll(&window);
+
+    std::thread conT(&Game::connect, this);
+    conT.join();
+
     Play(&window);
+}
+
+Game::~Game() {
+    delete this->con;
 }
 
 void Game::drawAll(RenderWindow *window) {
@@ -79,6 +87,7 @@ void Game::Play(RenderWindow* window) {
         }
         if(!end)
         {
+
             ball->updateMovementOfBall(this->player1, this->player2, window);
             drawNew(window, this->ball->getPosX(), this->ball->getPosY());
             if(this->ball->getPosition().x > window->getSize().x)
@@ -113,24 +122,32 @@ void Game::keyInput(Keyboard::Key key) {
 //pohyby W a S
     switch (key) {
         case Keyboard::W:
-            if (player1->getPositionY() > 0) {
+            if (this->packetTypes == PacketTypes::SERVER && player1->getPositionY() > 0) {
                 player1->ascend();
+                this->con->sendPacketPlayerInfo(player1->getPositionY());
+                this->con->recievePacketPlayerInfo(player2, width - 8);
 
-            } else if (player2->getPositionY() > 0){
+            } else if (this->packetTypes == PacketTypes::CLIENT && player2->getPositionY() > 0){
                 player2->ascend();
-
+                this->con->sendPacketPlayerInfo(player2->getPositionY());
+                this->con->recievePacketPlayerInfo(player1, 0);
             }
             break;
         case Keyboard::S:
-            if (player1->getPositionY()+50 < height) {
+            if (this->packetTypes == PacketTypes::SERVER && player1->getPositionY()+50 < height) {
                 player1->descend();
-            } else if (player2->getPositionY()+50 < height){
+                this->con->sendPacketPlayerInfo(player1->getPositionY());
+                this->con->recievePacketPlayerInfo(player2, width - 8);
+            } else if (this->packetTypes == PacketTypes::CLIENT && player2->getPositionY()+50 < height){
                 player2->descend();
+                this->con->sendPacketPlayerInfo(player2->getPositionY());
+                this->con->recievePacketPlayerInfo(player1, 0);
             }
             break;
         case Keyboard::R:
             if (this->end)
             {
+                this->con->sendPacketPlayerInfo(0);
                 this->ball->setPosX(0);
                 this->ball->setPosY(0);
                 player1->resetPosition();
@@ -143,3 +160,26 @@ void Game::keyInput(Keyboard::Key key) {
             break;
     }
 }
+
+void Game::connect() {
+    this->con = new Connection(PORT);
+
+    cout << "Your IP address is: " << this->con->getIpAddress().getLocalAddress() << std::endl;
+
+    cout << "Enter s to be a server and c to be a client." << endl;
+    string input;
+    cin >> input;
+
+    if (input == "s") {
+        cout << "Waiting for client." << endl;
+        this->packetTypes == PacketTypes::SERVER;
+    } else if (input == "c") {
+        cout << "Enter IP adress of you host." << endl;
+        string input;
+        cin >> input;
+        this->packetTypes = PacketTypes::CLIENT;
+        this->con->setIpAddress(input);
+    }
+}
+
+
