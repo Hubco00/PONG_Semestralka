@@ -6,22 +6,30 @@
 
 Connection::Connection(unsigned short port) : port(port)
 {
-    this->socket.bind(port);
+
 }
 
 Connection::~Connection() {
 
 }
 
-void Connection::connect(IpAddress ipAddress) {
-    this->ipAddress = ipAddress;
-    this->socket.bind(port);
+bool Connection::connect(IpAddress ipAddress) {
+    if (socket.connect(ipAddress, port) != Socket::Done) {
+        cerr << "Failed to connect." << endl;
+        return false;
+    }
+    return true;
 }
+
+void Connection::disconnect() {
+    socket.disconnect();
+}
+
 
 
 void Connection::recievePacketPlayerInfo(GamePlayer* player, double posX) {
     Packet packet;
-    this->socket.receive(packet, this->ipAddress, this->port);
+    this->socket.receive(packet);
     double posY;
     packet >> posY;
     player->setPlayerPosition(posX, posY);
@@ -30,7 +38,7 @@ void Connection::recievePacketPlayerInfo(GamePlayer* player, double posX) {
 void Connection::sendPacketPlayerInfo(double position) {
     Packet packet;
     packet << position;
-    this->socket.send(packet, this->ipAddress, this->port);
+    this->socket.send(packet);
 }
 
 const IpAddress &Connection::getIpAddress() const {
@@ -41,14 +49,14 @@ void Connection::setIpAddress(const IpAddress &ipAddress) {
     Connection::ipAddress = ipAddress;
 }
 
-const UdpSocket &Connection::getSocket() const {
+TcpSocket &Connection::getSocket() {
     return socket;
 }
 
 bool Connection::sendConnectEstablish(string message) {
     Packet packet;
     packet << message;
-    if(this->socket.send(packet,this->ipAddress, this->port) != Socket::Done)
+    if(this->socket.send(packet) != Socket::Done)
     {
         cerr << "Failed to send messahe." << endl;
         return false;
@@ -58,7 +66,7 @@ bool Connection::sendConnectEstablish(string message) {
 
 bool Connection::recieveEstablish(string& message) {
     Packet packet;
-    if(this->socket.receive(packet, this->ipAddress, this->port) != Socket::Done)
+    if(this->socket.receive(packet) != Socket::Done)
     {
         std::cerr << "Failed to receive message" << std::endl;
         return false;

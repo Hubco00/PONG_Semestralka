@@ -14,7 +14,7 @@ using namespace sf;
 
 class Connection {
 private:
-    UdpSocket socket;
+    TcpSocket socket;
     IpAddress ipAddress;
     unsigned short port;
     bool isServer;
@@ -22,7 +22,8 @@ public:
     Connection(unsigned short  port);
 
     ~Connection();
-    void connect(IpAddress ipAddress);
+    bool connect(IpAddress ipAddress);
+    void disconnect();
     void recievePacketPlayerInfo(GamePlayer* player, double posX);
 
     void sendPacketPlayerInfo(double position);
@@ -32,9 +33,10 @@ public:
 
     const IpAddress &getIpAddress() const;
 
-    const UdpSocket &getSocket() const;
+    TcpSocket &getSocket();
 
     void setIpAddress(const IpAddress &ipAddress);
+
 };
 
 

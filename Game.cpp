@@ -168,67 +168,111 @@ void Game::keyInput(Keyboard::Key key) {
 }
 
 void Game::connect() {
+//    this->con = new Connection(PORT);
+//
+//    cout << "Your IP address is: " << this->con->getIpAddress().getLocalAddress() << std::endl;
+//
+//    cout << "Enter s to be a server and c to be a client." << endl;
+//    string input;
+//    cin >> input;
+//
+//    if (input == "s") {
+//
+//        cout << "Waiting for client." << endl;
+//        this->packetTypes = PacketTypes::SERVER;
+//        string ack;
+//        while(this->isConnected != true) {
+//            TcpListener listener;
+//            if (listener.listen(PORT) != Socket::Done) {
+//                cerr << "Server failed to listen on port." << endl;
+//                return;
+//            }
+//            if(!this->con->sendConnectEstablish("Connection established"))
+//            {
+//                this_thread::sleep_for(chrono::seconds(5));
+//                continue;
+//            }
+//
+//            if(!this->con->recieveEstablish(ack))
+//            {
+//                this_thread::sleep_for(chrono::seconds(5));
+//                continue;
+//            }
+//            if (ack == "Acknowledged") {
+//                this->isConnected = true;
+//                cout << "Client connected and acknowledged." << endl;
+//            } else
+//            {
+//                this->isConnected = false;
+//                cout << "Client NOT connected and acknowledged." << endl;
+//            }
+//
+//            this_thread::sleep_for(chrono::seconds(5));
+//        }
+//    } else if (input == "c") {
+//        cout << "Enter IP adress of you host." << endl;
+//        string input;
+//        cin >> input;
+//        this->packetTypes = PacketTypes::CLIENT;
+//        this->con->setIpAddress(input);
+//        string confirmation;
+//
+//        while(this->isConnected != true) {
+//            if(!this->con->recieveEstablish(confirmation))
+//            {
+//                this_thread::sleep_for(chrono::seconds(5));
+//                continue;
+//            }
+//            if (confirmation == "Connection established") {
+//                this->con->sendConnectEstablish("Acknowledged");
+//                this->isConnected = true;
+//                cout << "Connected to server." << endl;
+//            }
+//            else
+//            {
+//                this->isConnected = false;
+//                cout << "NOT connected to server." << endl;
+//            }
+//            this_thread::sleep_for(chrono::seconds(5));
+//        }
+//    }
     this->con = new Connection(PORT);
 
-    cout << "Your IP address is: " << this->con->getIpAddress().getLocalAddress() << std::endl;
-
-    cout << "Enter s to be a server and c to be a client." << endl;
+    cout << "Enter 's' to be a server and 'c' to be a client." << endl;
     string input;
     cin >> input;
 
     if (input == "s") {
-        cout << "Waiting for client." << endl;
+        TcpListener listener;
+        if (listener.listen(PORT) != Socket::Done) {
+            cerr << "Server failed to listen on port." << endl;
+            return;
+        }
+
+        cout << "Server started. Waiting for client..." << endl;
         this->packetTypes = PacketTypes::SERVER;
-        string ack;
-        while(this->isConnected != true) {
-            if(!this->con->sendConnectEstablish("Connection established"))
-            {
-                this_thread::sleep_for(chrono::seconds(5));
-                continue;
-            }
-
-            if(!this->con->recieveEstablish(ack))
-            {
-                this_thread::sleep_for(chrono::seconds(5));
-                continue;
-            }
-            if (ack == "Acknowledged") {
-                this->isConnected = true;
-                cout << "Client connected and acknowledged." << endl;
-            } else
-            {
-                this->isConnected = false;
-                cout << "Client NOT connected and acknowledged." << endl;
-            }
-
-            this_thread::sleep_for(chrono::seconds(5));
+        if (listener.accept(this->con->getSocket()) != Socket::Done) {
+            cerr << "Failed to accept client connection." << endl;
+            return;
         }
+
+        cout << "Client connected." << endl;
+        this->isConnected = true;
+        // Further server-side handling
     } else if (input == "c") {
-        cout << "Enter IP adress of you host." << endl;
-        string input;
-        cin >> input;
-        this->packetTypes = PacketTypes::CLIENT;
-        this->con->setIpAddress(input);
-        string confirmation;
+        cout << "Enter IP address of your host: ";
+        string hostIP;
+        cin >> hostIP;
 
-        while(this->isConnected != true) {
-            if(!this->con->recieveEstablish(confirmation))
-            {
-                this_thread::sleep_for(chrono::seconds(5));
-                continue;
-            }
-            if (confirmation == "Connection established") {
-                this->con->sendConnectEstablish("Acknowledged");
-                this->isConnected = true;
-                cout << "Connected to server." << endl;
-            }
-            else
-            {
-                this->isConnected = false;
-                cout << "NOT connected to server." << endl;
-            }
-            this_thread::sleep_for(chrono::seconds(5));
+        this->packetTypes = PacketTypes::CLIENT;
+        if (con->connect(IpAddress(hostIP))) {
+            cout << "Connected to server." << endl;
+            this->isConnected = true;
+        } else {
+            cerr << "Failed to connect to server." << endl;
+            this->isConnected = false;
         }
+        // Further client-side handling
     }
 }
 
