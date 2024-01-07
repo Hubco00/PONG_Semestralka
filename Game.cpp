@@ -80,6 +80,13 @@ void Game::drawNew(RenderWindow *window, double x, double y) {
 
 void Game::Play(RenderWindow* window) {
 
+    this->player1->plusScore();
+    if(this->packetTypes == PacketTypes::SERVER) {
+        this->con->sendPacketScoreInfo(this->player1->getScore());
+    } else {
+        this->con->recievePacketScoreInfo();
+        this->scorePlayer1.setString(to_string(this->player1->getScore()));
+    }
     while(window->isOpen())
     {
         Event event;
@@ -103,7 +110,8 @@ void Game::Play(RenderWindow* window) {
             }
 
             drawNew(window, this->ball->getPosX(), this->ball->getPosY());
-            if (this->packetTypes == PacketTypes::SERVER) {
+            if (this->packetTypes == PacketTypes::SERVER)
+            {
                 if (this->ball->getPosition().x > window->getSize().x) {
                     this->player1->plusScore();
 
