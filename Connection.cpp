@@ -40,3 +40,25 @@ const IpAddress &Connection::getIpAddress() const {
 void Connection::setIpAddress(const IpAddress &ipAddress) {
     Connection::ipAddress = ipAddress;
 }
+
+const UdpSocket &Connection::getSocket() const {
+    return socket;
+}
+
+void Connection::sendConnectEstablish(string message) {
+    Packet packet;
+    packet << message;
+    if(this->socket.send(packet,this->ipAddress, this->port) != Socket::Done)
+    {
+        cerr << "Failed to send messahe." << endl;
+    }
+}
+
+void Connection::recieveEstablish(string& message) {
+    Packet packet;
+    if(this->socket.receive(packet, this->ipAddress, this->port) != Socket::Done)
+    {
+        std::cerr << "Failed to receive message" << std::endl;
+    }
+    packet >> message;
+}

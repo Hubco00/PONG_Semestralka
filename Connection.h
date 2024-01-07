@@ -27,7 +27,12 @@ public:
 
     void sendPacketPlayerInfo(double position);
 
+    void sendConnectEstablish(string message);
+    void recieveEstablish(string& message);
+
     const IpAddress &getIpAddress() const;
+
+    const UdpSocket &getSocket() const;
 
     void setIpAddress(const IpAddress &ipAddress);
 };

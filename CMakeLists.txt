@@ -12,5 +12,5 @@ add_executable(PONG_Semestralka main.cpp Ball.cpp Ball.h Game.cpp Game.h
         Connection.cpp
         Connection.h PacketTypes.cpp PacketTypes.h)
 
-target_link_libraries(PONG_Semestralka sfml-system sfml-window sfml-graphics sfml-audio sfml-network)
+target_link_libraries(PONG_Semestralka sfml-system sfml-window sfml-graphics sfml-audio sfml-network pthread)
 

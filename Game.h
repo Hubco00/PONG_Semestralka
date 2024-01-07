@@ -12,15 +12,19 @@
 #include <SFML/System.hpp>
 #include "thread"
 #include "mutex"
-
+#include "queue"
+#include <condition_variable>
+#include <chrono>
 #define PORT 50145
 using namespace std;
 using namespace Pong;
 class Game {
 private:
+    thread listenn;
     int height = 500;
     int width = 750;
     Ball* ball;
+    Ball* secondBall;
     GamePlayer* player1;
     GamePlayer* player2;
     Text scorePlayer1;
@@ -30,6 +34,13 @@ private:
     PacketTypes packetTypes;
     thread thread;
     Connection* con;
+    mutex mutex;
+    queue<int> pocetGul;
+    condition_variable* isFull;
+    condition_variable* isEmpty;
+    TcpListener listener;
+    bool isConnected = false;
+
 public:
     Game();
     ~Game();
@@ -39,7 +50,10 @@ public:
     void drawNewScore(RenderWindow* window);
     void Play(RenderWindow* window);
     void keyInput(Keyboard::Key key);
+    void makeNewBall();
     void connect();
+    void listen();
+
 
 };
 

@@ -13,11 +13,15 @@ Game::Game() {
     std::thread conT(&Game::connect, this);
     conT.join();
 
+    this->listenn = thread(&)
+
     Play(&window);
 }
 
 Game::~Game() {
     delete this->con;
+    delete this->ball;
+    delete this->secondBall;
 }
 
 void Game::drawAll(RenderWindow *window) {
@@ -29,6 +33,8 @@ void Game::drawAll(RenderWindow *window) {
     this->player1->render(window);
     this->player2->render(window);
     this->ball->draw(window, this->ball->getPosX(), this->ball->getPosY());
+
+    this->secondBall = new Ball((this->width / 2), (this->height/2));
 
     this->setFont(window);
     window->display();
@@ -172,14 +178,64 @@ void Game::connect() {
 
     if (input == "s") {
         cout << "Waiting for client." << endl;
-        this->packetTypes == PacketTypes::SERVER;
+        this->packetTypes = PacketTypes::SERVER;
+        string ack;
+        while(this->isConnected != true) {
+            this->con->sendConnectEstablish("Connection established");
+
+            this->con->recieveEstablish(ack);
+            if (ack == "Acknowledged") {
+                this->isConnected = true;
+                cout << "Client connected and acknowledged." << endl;
+            } else
+            {
+                this->isConnected = false;
+                cout << "Client NOT connected and acknowledged." << endl;
+            }
+
+            this_thread::sleep_for(chrono::seconds(5));
+        }
     } else if (input == "c") {
         cout << "Enter IP adress of you host." << endl;
         string input;
         cin >> input;
         this->packetTypes = PacketTypes::CLIENT;
         this->con->setIpAddress(input);
+        string confirmation;
+
+        while(this->isConnected != true) {
+            this->con->recieveEstablish(confirmation);
+            if (confirmation == "Connection established") {
+                this->con->sendConnectEstablish("Acknowledged");
+                this->isConnected = true;
+                cout << "Connected to server." << endl;
+            }
+            else
+            {
+                this->isConnected = false;
+                cout << "NOT connected to server." << endl;
+            }
+            this_thread::sleep_for(chrono::seconds(5));
+        }
     }
 }
+
+
+
+//void Game::makeNewBall() {
+//
+//    while(!end) {
+//
+//        unique_lock<std::mutex> loc(this->mutex);
+//        while (this->pocetGul.size() >= 2) {
+//            this->isFull->wait(loc);
+//        }
+//
+//        this->pocetGul.push(1);
+//        this->secondBall->draw()
+//
+//
+//    }
+//}
 
 
