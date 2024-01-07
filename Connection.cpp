@@ -45,20 +45,24 @@ const UdpSocket &Connection::getSocket() const {
     return socket;
 }
 
-void Connection::sendConnectEstablish(string message) {
+bool Connection::sendConnectEstablish(string message) {
     Packet packet;
     packet << message;
     if(this->socket.send(packet,this->ipAddress, this->port) != Socket::Done)
     {
         cerr << "Failed to send messahe." << endl;
+        return false;
     }
+    return true;
 }
 
-void Connection::recieveEstablish(string& message) {
+bool Connection::recieveEstablish(string& message) {
     Packet packet;
     if(this->socket.receive(packet, this->ipAddress, this->port) != Socket::Done)
     {
         std::cerr << "Failed to receive message" << std::endl;
+        return false;
     }
     packet >> message;
+    return true;
 }

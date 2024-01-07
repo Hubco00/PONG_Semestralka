@@ -13,7 +13,7 @@ Game::Game() {
     std::thread conT(&Game::connect, this);
     conT.join();
 
-    this->listenn = thread(&)
+    //this->listenn = thread(&)
 
     Play(&window);
 }
@@ -181,9 +181,17 @@ void Game::connect() {
         this->packetTypes = PacketTypes::SERVER;
         string ack;
         while(this->isConnected != true) {
-            this->con->sendConnectEstablish("Connection established");
+            if(!this->con->sendConnectEstablish("Connection established"))
+            {
+                this_thread::sleep_for(chrono::seconds(5));
+                continue;
+            }
 
-            this->con->recieveEstablish(ack);
+            if(!this->con->recieveEstablish(ack))
+            {
+                this_thread::sleep_for(chrono::seconds(5));
+                continue;
+            }
             if (ack == "Acknowledged") {
                 this->isConnected = true;
                 cout << "Client connected and acknowledged." << endl;
@@ -204,7 +212,11 @@ void Game::connect() {
         string confirmation;
 
         while(this->isConnected != true) {
-            this->con->recieveEstablish(confirmation);
+            if(!this->con->recieveEstablish(confirmation))
+            {
+                this_thread::sleep_for(chrono::seconds(5));
+                continue;
+            }
             if (confirmation == "Connection established") {
                 this->con->sendConnectEstablish("Acknowledged");
                 this->isConnected = true;

@@ -27,8 +27,8 @@ public:
 
     void sendPacketPlayerInfo(double position);
 
-    void sendConnectEstablish(string message);
-    void recieveEstablish(string& message);
+    bool sendConnectEstablish(string message);
+    bool recieveEstablish(string& message);
 
     const IpAddress &getIpAddress() const;
 
