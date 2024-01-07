@@ -74,3 +74,19 @@ bool Connection::recieveEstablish(string& message) {
     packet >> message;
     return true;
 }
+
+void Connection::sendPacketBallInfo(double x, double y) {
+    Packet packet;
+    packet << x << y;
+    this->socket.send(packet);
+}
+
+Vector2f Connection::recievePacketBallInfo() {
+    Packet packet;
+    this->socket.receive(packet);
+    float posY;
+    float posX;
+    packet >> posX >> posY;
+    Vector2f positions = {posX, posY};
+    return positions;
+}

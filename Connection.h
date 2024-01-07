@@ -9,8 +9,10 @@
 #include "SFML/Network.hpp"
 #include <SFML/System.hpp>
 #include "GamePlayer.h"
+#include "Ball.h"
 using namespace std;
 using namespace sf;
+using namespace Pong;
 
 class Connection {
 private:
@@ -27,6 +29,9 @@ public:
     void recievePacketPlayerInfo(GamePlayer* player, double posX);
 
     void sendPacketPlayerInfo(double position);
+
+    void sendPacketBallInfo(double x, double y);
+    Vector2f recievePacketBallInfo();
 
     bool sendConnectEstablish(string message);
     bool recieveEstablish(string& message);
