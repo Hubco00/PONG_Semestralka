@@ -90,3 +90,17 @@ Vector2f Connection::recievePacketBallInfo() {
     Vector2f positions = {posX, posY};
     return positions;
 }
+
+void Connection::sendPacketScoreInfo(int score) {
+    Packet packet;
+    packet << score;
+    this->socket.send(packet);
+}
+
+int Connection::recievePacketScoreInfo() {
+    Packet packet;
+    this->socket.receive(packet);
+    int score;
+    packet >> score;
+    return score;
+}

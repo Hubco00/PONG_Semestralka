@@ -33,6 +33,9 @@ public:
     void sendPacketBallInfo(float x, float y);
     Vector2f recievePacketBallInfo();
 
+    void sendPacketScoreInfo(int score);
+    int recievePacketScoreInfo();
+
     bool sendConnectEstablish(string message);
     bool recieveEstablish(string& message);
 

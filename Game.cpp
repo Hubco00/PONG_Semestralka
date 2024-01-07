@@ -91,39 +91,47 @@ void Game::Play(RenderWindow* window) {
                 keyInput(event.key.code);
             }
         }
-        if(!end)
-        {
+        if(!end) {
 
-            if(this->packetTypes == PacketTypes::SERVER)
-            {
-                this->con->sendPacketBallInfo((float)this->ball->getPosX(), (float)this->ball->getPosY());
+            if (this->packetTypes == PacketTypes::SERVER) {
+                this->con->sendPacketBallInfo((float) this->ball->getPosX(), (float) this->ball->getPosY());
                 ball->updateMovementOfBall(this->player1, this->player2, window);
-            }
-            else
-            {
+            } else {
                 Vector2f positions = this->con->recievePacketBallInfo();
-                this->ball->getBall().move((double)positions.x,(double)positions.y);
+                this->ball->setPositions((double) positions.x, (double) positions.y);
                 //this->ball->updateMovementOfBall(player1,player2, window);
             }
 
             drawNew(window, this->ball->getPosX(), this->ball->getPosY());
-            if(this->ball->getPosition().x > window->getSize().x)
-            {
-                this->player1->plusScore();
-                this->player1->resetPosition();
-                this->player2->resetPosition();
+            if (this->packetTypes == PacketTypes::SERVER) {
+                if (this->ball->getPosition().x > window->getSize().x) {
+                    this->player1->plusScore();
 
-                this->ball->redrawToStartPos(window, this->player1->getGlobalBoundsOfPlayer().width + 10, (window->getSize().y / 2) - (this->ball->getBoundsOfBall().height / 2));
+                    this->con->sendPacketScoreInfo(this->player1->getScore());
+                    this->player1->resetPosition();
+                    this->player2->resetPosition();
+
+                    this->ball->redrawToStartPos(window, this->player1->getGlobalBoundsOfPlayer().width + 10,
+                                                 (window->getSize().y / 2) -
+                                                 (this->ball->getBoundsOfBall().height / 2));
 
 
+                } else if (this->ball->getPosition().x < 0) {
+                    this->player2->plusScore();
+                    this->con->sendPacketScoreInfo(this->player2->getScore());
+                    this->player1->resetPosition();
+                    this->player2->resetPosition();
+                    this->ball->redrawToStartPos(window, window->getSize().x -
+                                                         (this->player1->getGlobalBoundsOfPlayer().width + 10),
+                                                 (window->getSize().y / 2) -
+                                                 (this->ball->getBoundsOfBall().height / 2));
+                }
             }
-            else if(this->ball->getPosition().x < 0)
+            else
             {
-                this->player2->plusScore();
-                this->player1->resetPosition();
-                this->player2->resetPosition();
-                this->ball->redrawToStartPos(window, window->getSize().x - (this->player1->getGlobalBoundsOfPlayer().width + 10) , (window->getSize().y / 2) - (this->ball->getBoundsOfBall().height / 2));
-
+                this->con->recievePacketScoreInfo();
+                this->scorePlayer1.setString(to_string(player1->getScore()));
+                this->scorePlayer2.setString(to_string(player2->getScore()));
             }
         }
     }
