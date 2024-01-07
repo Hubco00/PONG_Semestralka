@@ -75,7 +75,7 @@ bool Connection::recieveEstablish(string& message) {
     return true;
 }
 
-void Connection::sendPacketBallInfo(double x, double y) {
+void Connection::sendPacketBallInfo(float x, float y) {
     Packet packet;
     packet << x << y;
     this->socket.send(packet);

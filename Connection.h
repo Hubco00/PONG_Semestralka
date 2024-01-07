@@ -30,7 +30,7 @@ public:
 
     void sendPacketPlayerInfo(double position);
 
-    void sendPacketBallInfo(double x, double y);
+    void sendPacketBallInfo(float x, float y);
     Vector2f recievePacketBallInfo();
 
     bool sendConnectEstablish(string message);

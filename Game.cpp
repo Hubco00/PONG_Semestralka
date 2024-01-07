@@ -96,14 +96,14 @@ void Game::Play(RenderWindow* window) {
 
             if(this->packetTypes == PacketTypes::SERVER)
             {
-                this->con->sendPacketBallInfo(this->ball->getPosX(), this->ball->getPosY());
+                this->con->sendPacketBallInfo((float)this->ball->getPosX(), (float)this->ball->getPosY());
                 ball->updateMovementOfBall(this->player1, this->player2, window);
             }
             else
             {
                 Vector2f positions = this->con->recievePacketBallInfo();
-                this->ball->setPositions(positions.x,positions.y);
-                this->ball->updateMovementOfBall(player1,player2, window);
+                this->ball->getBall().move((double)positions.x,(double)positions.y);
+                //this->ball->updateMovementOfBall(player1,player2, window);
             }
 
             drawNew(window, this->ball->getPosX(), this->ball->getPosY());
