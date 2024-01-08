@@ -70,4 +70,8 @@ void GamePlayer::setPlayerPosition(double posX, double posY ) {
     this->player.setPosition(posX, posY);
 }
 
+void GamePlayer::setPlayerScore(int playerScore) {
+    this->playerScore = playerScore;
+}
+
 

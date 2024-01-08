@@ -40,6 +40,7 @@ private:
     TcpSocket socket;
     IpAddress ipAddress;
     bool listening = false;
+    std::thread listeningThread;
 
 
 public:

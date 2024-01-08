@@ -9,12 +9,12 @@ Game::Game() {
     RenderWindow window;
     this->end = false;
     drawAll(&window);
-
+    this->socket.setBlocking(false);
     std::thread conT(&Game::connect, this);
     conT.join();
 
-    std::thread listenT(&Game::listen,this);
-    listenT.join();
+    listeningThread = std::thread(&Game::listen,this);
+
     Play(&window);
 }
 
@@ -101,32 +101,34 @@ void Game::Play(RenderWindow* window) {
 
             drawNew(window, this->ball->getPosX(), this->ball->getPosY());
 
-                if (this->ball->getPosition().x > window->getSize().x) {
-                    this->player1->plusScore();
+            if (this->ball->getPosition().x > window->getSize().x) {
+                this->player1->plusScore();
+                this->send(PacketTypes::SCORE, this->player1->getScore(), this->player2->getScore());
+                //this->con->sendPacketScoreInfo(this->player1->getScore());
+                this->player1->resetPosition();
+                this->player2->resetPosition();
+                this->send(PacketTypes::END, this->player1->getPositionY(), this->player2->getPositionY());
 
-                    //this->con->sendPacketScoreInfo(this->player1->getScore());
-                    this->player1->resetPosition();
-                    this->player2->resetPosition();
-
-                    this->ball->redrawToPos(this->player1->getGlobalBoundsOfPlayer().width + 10,
-                                            (window->getSize().y / 2) -
-                                            (this->ball->getBoundsOfBall().height / 2));
+                this->ball->redrawToPos(this->player1->getGlobalBoundsOfPlayer().width + 10,
+                                        (window->getSize().y / 2) -
+                                        (this->ball->getBoundsOfBall().height / 2));
 
 
-                } else if (this->ball->getPosition().x < 0) {
-                    this->player2->plusScore();
-                    //this->con->sendPacketScoreInfo(this->player2->getScore());
-                    this->player1->resetPosition();
-                    this->player2->resetPosition();
-                    this->ball->redrawToPos(window->getSize().x -
-                                                    (this->player1->getGlobalBoundsOfPlayer().width + 10),
-                                            (window->getSize().y / 2) -
-                                            (this->ball->getBoundsOfBall().height / 2));
-                }
+            } else if (this->ball->getPosition().x < 0) {
+                this->player2->plusScore();
+                this->send(PacketTypes::SCORE, this->player1->getScore(), this->player2->getScore());
+                this->player1->resetPosition();
+                this->player2->resetPosition();
+                this->send(PacketTypes::END, this->player1->getPositionY(), this->player2->getPositionY());
+                this->ball->redrawToPos(window->getSize().x -
+                                                (this->player1->getGlobalBoundsOfPlayer().width + 10),
+                                        (window->getSize().y / 2) -
+                                        (this->ball->getBoundsOfBall().height / 2));
+            }
 
         }
     }
-
+    listeningThread.join();
 }
 
 void Game::drawNewScore(RenderWindow* window) {
@@ -224,28 +226,14 @@ void Game::connect() {
 void Game::listen() {
 
     Packet packet;
-    while (this->listening) {
-       // unique_lock<std::mutex> lock(mutex);
-
-        auto status = this->socket.receive(packet);
-
-        if (status == Socket::Done) {
-            // Process packet as usual
+    while (listening){
+        if (socket.receive(packet) == Socket::Done){
             if (this->packetTypes == PacketTypes::SERVER) {
                 extractFromPackets(packet, this->player2, ball);
             } else {
                 extractFromPackets(packet, this->player1, ball);
             }
-        } else if (status == Socket::NotReady) {
-            // No data received, socket would block
-            // Implement a delay or sleep to avoid busy-waiting
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
-
-        // Other conditions (e.g., errors) can be handled here
-
-       // lock.unlock();
-        // Other processing can go here
     }
 }
 
@@ -259,8 +247,15 @@ void Game::extractFromPackets(Packet packet, GamePlayer* player, Ball* ball)
             player->setCurrentPositions((double)firstPacketInfo, (double)secondPacketInfo);
             break;
         case 4:
+            this->player1->setPlayerScore(firstPacketInfo);
+            this->player2->setPlayerScore(secondPacketInfo);
+            break;
+        case 5:
             ball->redrawToPos((double)firstPacketInfo, (double)secondPacketInfo);
             break;
+        case 6:
+            this->player1->setCurrentPositions(0, (double)firstPacketInfo);
+            this->player2->setCurrentPositions(width-8, (double)secondPacketInfo);
     }
 
 }

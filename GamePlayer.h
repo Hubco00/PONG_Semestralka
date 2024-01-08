@@ -37,6 +37,8 @@ public:
     void resetScore();
     void setPlayerPosition(double posX, double posY);
 
+    void setPlayerScore(int playerScore);
+
     // Seter
     void plusScore();
 

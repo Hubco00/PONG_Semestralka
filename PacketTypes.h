@@ -12,6 +12,7 @@ enum class PacketTypes {
     PLAYER = 3,
     SCORE = 4,
     BALL = 5,
+    END = 6
 
 };
 
