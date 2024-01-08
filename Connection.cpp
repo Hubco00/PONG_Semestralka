@@ -7,6 +7,7 @@
 Connection::Connection(unsigned short port) : port(port)
 {
     this->connected = false;
+    this->socket.setBlocking(false);
 }
 
 Connection::~Connection() {

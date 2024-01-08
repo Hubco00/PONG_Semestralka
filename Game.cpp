@@ -15,16 +15,9 @@ Game::Game() {
 
 
 
-    if(this->packetTypes == PacketTypes::SERVER)
-    {
-        std::thread listenT(&Game::listen,this,this->player2);
+
+        std::thread listenT(&Game::listen,this);
         listenT.join();
-    }
-    else
-    {
-        std::thread listenT(&Game::listen,this,this->player1);
-        listenT.join();
-    }
 
 
 
@@ -241,21 +234,28 @@ void Game::connect() {
 void Game::listen() {
 
     Packet packet;
-    while(this->con->getConnected())
-    {
-        unique_lock<std::mutex> loc(mutex);
-        if(this->con->getSocket().receive(packet) == Socket::Done)
-        {
-            if(this->packetTypes == PacketTypes::SERVER)
-            {
+    while (this->con->getConnected()) {
+        unique_lock<std::mutex> lock(mutex);
+
+        auto status = this->con->getSocket().receive(packet);
+
+        if (status == Socket::Done) {
+            // Process packet as usual
+            if (this->packetTypes == PacketTypes::SERVER) {
                 extractFromPackets(packet, this->player2, ball);
-            } else
-            {
+            } else {
                 extractFromPackets(packet, this->player1, ball);
             }
-
-            loc.unlock();
+        } else if (status == Socket::NotReady) {
+            // No data received, socket would block
+            // Implement a delay or sleep to avoid busy-waiting
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
+
+        // Other conditions (e.g., errors) can be handled here
+
+        lock.unlock();
+        // Other processing can go here
     }
 }
 
