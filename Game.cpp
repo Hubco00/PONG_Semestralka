@@ -13,16 +13,18 @@ Game::Game() {
     std::thread conT(&Game::connect, this);
     conT.join();
 
+
+    std::thread listenT;
     if(this->packetTypes == PacketTypes::SERVER)
     {
-        this->listenn = std::thread(&Game::listen,this,this->player2);
+        listenT = std::thread(&Game::listen,this,this->player2);
     }
     else
     {
-        this->listenn = std::thread(&Game::listen,this,this->player1);
+        listenT = std::thread(&Game::listen,this,this->player1);
     }
 
-    this->listenn.join();
+    listenT.join();
 
     Play(&window);
 }

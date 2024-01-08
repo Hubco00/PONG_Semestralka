@@ -20,7 +20,6 @@ using namespace std;
 using namespace Pong;
 class Game {
 private:
-    thread listenn;
     int height = 500;
     int width = 750;
     Ball* ball;
