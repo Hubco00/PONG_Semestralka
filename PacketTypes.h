@@ -8,7 +8,11 @@
 
 enum class PacketTypes {
     SERVER = 1,
-    CLIENT = 2
+    CLIENT = 2,
+    PLAYER = 3,
+    SCORE = 4,
+    BALL = 5,
+
 };
 
 

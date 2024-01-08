@@ -39,7 +39,7 @@ private:
     condition_variable* isFull;
     condition_variable* isEmpty;
     TcpListener listener;
-    bool isConnected = false;
+
 
 public:
     Game();

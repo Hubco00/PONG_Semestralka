@@ -22,7 +22,7 @@ namespace Pong {
         void setPositions(double x, double y);
         void move();
         void draw(RenderWindow * window,double positionX, double positionY);
-        void redrawToStartPos(RenderWindow* window, double x, double y);
+        void redrawToPos(double x, double y);
         FloatRect getBoundsOfBall();
         double getMovementX() const;
 

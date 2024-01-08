@@ -10,6 +10,7 @@
 #include <SFML/System.hpp>
 #include "GamePlayer.h"
 #include "Ball.h"
+#include "PacketTypes.h"
 using namespace std;
 using namespace sf;
 using namespace Pong;
@@ -20,6 +21,7 @@ private:
     IpAddress ipAddress;
     unsigned short port;
     bool isServer;
+    bool connected;
 public:
     Connection(unsigned short  port);
 
@@ -28,9 +30,9 @@ public:
     void disconnect();
     void recievePacketPlayerInfo(GamePlayer* player, double posX);
 
-    void sendPacketPlayerInfo(double position);
+    void sendPacketPlayerInfo(PacketTypes packetTypes, double position);
 
-    void sendPacketBallInfo(float x, float y);
+    void sendPacketBallInfo(PacketTypes packetTypes,float x, float y);
     Vector2f recievePacketBallInfo();
 
     void sendPacketScoreInfo(int score);
@@ -39,12 +41,19 @@ public:
     bool sendConnectEstablish(string message);
     bool recieveEstablish(string& message);
 
+    bool isConnected() const;
+
+    void setConnected(bool condition);
+
     const IpAddress &getIpAddress() const;
 
     TcpSocket &getSocket();
 
+    void listen(GamePlayer* player, Ball* ball);
+
     void setIpAddress(const IpAddress &ipAddress);
 
+    void extractFromPackets(Packet packet, GamePlayer* player, Ball* ball);
 };
 
 

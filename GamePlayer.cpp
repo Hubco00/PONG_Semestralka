@@ -41,6 +41,12 @@ void GamePlayer::move(float deltaX, float deltaY)
     this->currentPositionY += deltaY;
 }
 
+void GamePlayer::setCurrentPositions(double currentPositionX, double currentPositionY) {
+    this->currentPositionX = currentPositionX;
+    this->currentPositionY = currentPositionY;
+}
+
+
 void GamePlayer::resetPosition()
 {
     this->currentPositionX = initialPositionX;
@@ -60,7 +66,7 @@ void GamePlayer::resetScore() {
     this->playerScore = 0;
 }
 
-void GamePlayer::setPlayerPosition(int posX, int posY ) {
+void GamePlayer::setPlayerPosition(double posX, double posY ) {
     this->player.setPosition(posX, posY);
 }
 

@@ -6,7 +6,7 @@
 
 Connection::Connection(unsigned short port) : port(port)
 {
-
+    this->connected = false;
 }
 
 Connection::~Connection() {
@@ -35,9 +35,9 @@ void Connection::recievePacketPlayerInfo(GamePlayer* player, double posX) {
     player->setPlayerPosition(posX, posY);
 }
 
-void Connection::sendPacketPlayerInfo(double position) {
+void Connection::sendPacketPlayerInfo(PacketTypes packetTypes, double position) {
     Packet packet;
-    packet << position;
+    packet << (int)packetTypes << position << 0;
     this->socket.send(packet);
 }
 
@@ -53,31 +53,10 @@ TcpSocket &Connection::getSocket() {
     return socket;
 }
 
-bool Connection::sendConnectEstablish(string message) {
-    Packet packet;
-    packet << message;
-    if(this->socket.send(packet) != Socket::Done)
-    {
-        cerr << "Failed to send messahe." << endl;
-        return false;
-    }
-    return true;
-}
 
-bool Connection::recieveEstablish(string& message) {
+void Connection::sendPacketBallInfo(PacketTypes packetTypes,float x, float y) {
     Packet packet;
-    if(this->socket.receive(packet) != Socket::Done)
-    {
-        std::cerr << "Failed to receive message" << std::endl;
-        return false;
-    }
-    packet >> message;
-    return true;
-}
-
-void Connection::sendPacketBallInfo(float x, float y) {
-    Packet packet;
-    packet << x << y;
+    packet << (int)packetTypes << x << y;
     this->socket.send(packet);
 }
 
@@ -103,4 +82,39 @@ int Connection::recievePacketScoreInfo() {
     int score;
     packet >> score;
     return score;
+}
+
+bool Connection::isConnected() const {
+    return connected;
+}
+
+void Connection::setConnected(bool condition) {
+    Connection::connected = condition;
+}
+
+void Connection::listen(GamePlayer* player, Ball* ball) {
+    Packet packet;
+    while(this->connected)
+    {
+        if(this->socket.receive(packet) == Socket::Done)
+        {
+            extractFromPackets(packet, player, ball);
+        }
+    }
+}
+
+void Connection::extractFromPackets(Packet packet, GamePlayer* player, Ball* ball)
+{
+    int packetType;
+    float firstPacketInfo, secondPacketInfo;
+    packet >> packetType >> firstPacketInfo >> secondPacketInfo;
+    switch (packetType) {
+        case 3:
+            player->setCurrentPositions((double)firstPacketInfo, (double)secondPacketInfo);
+            break;
+        case 4:
+            ball->redrawToPos((double)firstPacketInfo, (double)secondPacketInfo);
+            break;
+    }
+
 }
