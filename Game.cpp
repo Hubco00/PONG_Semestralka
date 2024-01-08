@@ -13,19 +13,13 @@ Game::Game() {
     std::thread conT(&Game::connect, this);
     conT.join();
 
-
-
-
-        std::thread listenT(&Game::listen,this);
-        listenT.join();
-
-
-
+    std::thread listenT(&Game::listen,this);
+    listenT.join();
     Play(&window);
 }
 
 Game::~Game() {
-    delete this->con;
+   // delete this->con;
     delete this->ball;
     delete this->secondBall;
 }
@@ -101,17 +95,16 @@ void Game::Play(RenderWindow* window) {
         if(!end) {
 
             if (this->packetTypes == PacketTypes::SERVER) {
-                this->con->sendPacketBallInfo(PacketTypes::BALL, (float) this->ball->getPosX(), (float) this->ball->getPosY());
+                this->send(PacketTypes::BALL, (float) this->ball->getPosX(), (float) this->ball->getPosY());
                 ball->updateMovementOfBall(this->player1, this->player2, window);
             }
 
             drawNew(window, this->ball->getPosX(), this->ball->getPosY());
-            if (this->packetTypes == PacketTypes::SERVER)
-            {
+
                 if (this->ball->getPosition().x > window->getSize().x) {
                     this->player1->plusScore();
 
-                    this->con->sendPacketScoreInfo(this->player1->getScore());
+                    //this->con->sendPacketScoreInfo(this->player1->getScore());
                     this->player1->resetPosition();
                     this->player2->resetPosition();
 
@@ -122,7 +115,7 @@ void Game::Play(RenderWindow* window) {
 
                 } else if (this->ball->getPosition().x < 0) {
                     this->player2->plusScore();
-                    this->con->sendPacketScoreInfo(this->player2->getScore());
+                    //this->con->sendPacketScoreInfo(this->player2->getScore());
                     this->player1->resetPosition();
                     this->player2->resetPosition();
                     this->ball->redrawToPos(window->getSize().x -
@@ -130,13 +123,7 @@ void Game::Play(RenderWindow* window) {
                                             (window->getSize().y / 2) -
                                             (this->ball->getBoundsOfBall().height / 2));
                 }
-            }
-            else
-            {
-                this->con->recievePacketScoreInfo();
-                this->scorePlayer1.setString(to_string(player1->getScore()));
-                this->scorePlayer2.setString(to_string(player2->getScore()));
-            }
+
         }
     }
 
@@ -153,29 +140,36 @@ void Game::keyInput(Keyboard::Key key) {
         case Keyboard::W:
             if (this->packetTypes == PacketTypes::SERVER && player1->getPositionY() > 0) {
                 player1->ascend();
-                this->con->sendPacketPlayerInfo(PacketTypes::PLAYER,player1->getPositionY());
+                this->send(PacketTypes::PLAYER,0,player1->getPositionY());
 
 
             } else if (this->packetTypes == PacketTypes::CLIENT && player2->getPositionY() > 0){
                 player2->ascend();
-                this->con->sendPacketPlayerInfo(PacketTypes::PLAYER,player2->getPositionY());
+                this->send(PacketTypes::PLAYER,width-8,player2->getPositionY());
 
             }
             break;
         case Keyboard::S:
             if (this->packetTypes == PacketTypes::SERVER && player1->getPositionY()+50 < height) {
                 player1->descend();
-                this->con->sendPacketPlayerInfo(PacketTypes::PLAYER,player1->getPositionY());
+                this->send(PacketTypes::PLAYER,0,player1->getPositionY());
 
             } else if (this->packetTypes == PacketTypes::CLIENT && player2->getPositionY()+50 < height){
                 player2->descend();
-                this->con->sendPacketPlayerInfo(PacketTypes::PLAYER,player2->getPositionY());
+                this->send(PacketTypes::PLAYER,width-8,player2->getPositionY());
             }
             break;
         case Keyboard::R:
             if (this->end)
             {
-                this->con->sendPacketPlayerInfo(PacketTypes::PLAYER,0);
+                if(this->packetTypes == PacketTypes::SERVER)
+                {
+                    this->send(PacketTypes::PLAYER,0,0);
+                } else
+                {
+                    this->send(PacketTypes::PLAYER,width-8,0);
+                }
+
                 this->ball->setPosX(0);
                 this->ball->setPosY(0);
                 player1->resetPosition();
@@ -190,8 +184,6 @@ void Game::keyInput(Keyboard::Key key) {
 }
 
 void Game::connect() {
-    unique_lock<std::mutex> loc(this->mutex);
-    this->con = new Connection(PORT);
 
     cout << "Enter 's' to be a server and 'c' to be a client." << endl;
     string input;
@@ -206,38 +198,36 @@ void Game::connect() {
 
         cout << "Server started. Waiting for client." << endl;
         this->packetTypes = PacketTypes::SERVER;
-        if (listener.accept(this->con->getSocket()) != Socket::Done) {
+        if (listener.accept(this->socket) != Socket::Done) {
             cerr << "Failed to accept client connection." << endl;
             return;
         }
 
         cout << "Client connected." << endl;
-        this->con->setConnected(true);
-        loc.unlock();
+        this->listening = true;
     } else if (input == "c") {
         cout << "Enter IP address of your host: ";
         string hostIP;
         cin >> hostIP;
 
         this->packetTypes = PacketTypes::CLIENT;
-        if (con->connect(IpAddress(hostIP))) {
+        if (this->socket.connect(IpAddress(hostIP), PORT)) {
             cout << "Connected to server." << endl;
-            this->con->setConnected(true);
-            loc.unlock();
+            this->listening = true;
         } else {
             cerr << "Failed to connect to server." << endl;
-            this->con->setConnected(false);
-            loc.unlock();
+            this->listening = false;
         }
     }
+
 }
 void Game::listen() {
 
     Packet packet;
-    while (this->con->getConnected()) {
-        unique_lock<std::mutex> lock(mutex);
+    while (this->listening) {
+       // unique_lock<std::mutex> lock(mutex);
 
-        auto status = this->con->getSocket().receive(packet);
+        auto status = this->socket.receive(packet);
 
         if (status == Socket::Done) {
             // Process packet as usual
@@ -254,7 +244,7 @@ void Game::listen() {
 
         // Other conditions (e.g., errors) can be handled here
 
-        lock.unlock();
+       // lock.unlock();
         // Other processing can go here
     }
 }
@@ -273,6 +263,13 @@ void Game::extractFromPackets(Packet packet, GamePlayer* player, Ball* ball)
             break;
     }
 
+}
+
+void Game::send(PacketTypes packetTypes, float firstInfo, float secondInfo)
+{
+    Packet packet;
+    packet << (int)packetTypes << firstInfo << secondInfo;
+    socket.send(packet);
 }
 
 

@@ -31,13 +31,15 @@ private:
     Font font;
     bool end;
     PacketTypes packetTypes;
-    thread thread;
-    Connection* con;
+    //Connection* con;
     mutex mutex;
     queue<int> pocetGul;
     condition_variable* isFull;
     condition_variable* isEmpty;
     TcpListener listener;
+    TcpSocket socket;
+    IpAddress ipAddress;
+    bool listening = false;
 
 
 public:
@@ -52,6 +54,7 @@ public:
     void makeNewBall();
     void connect();
     void listen();
+    void send(PacketTypes packetTypes, float firstInfo, float secondInfo);
     void extractFromPackets(Packet packet, GamePlayer* player, Ball* ball);
 
 
