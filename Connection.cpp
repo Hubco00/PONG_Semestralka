@@ -94,19 +94,5 @@ void Connection::setConnected(bool condition) {
 
 
 
-void Connection::extractFromPackets(Packet packet, GamePlayer* player, Ball* ball)
-{
-    int packetType;
-    float firstPacketInfo, secondPacketInfo;
-    packet >> packetType >> firstPacketInfo >> secondPacketInfo;
-    switch (packetType) {
-        case 3:
-            player->setCurrentPositions((double)firstPacketInfo, (double)secondPacketInfo);
-            break;
-        case 4:
-            ball->redrawToPos((double)firstPacketInfo, (double)secondPacketInfo);
-            break;
-    }
 
-}
 

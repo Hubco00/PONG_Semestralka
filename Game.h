@@ -51,7 +51,8 @@ public:
     void keyInput(Keyboard::Key key);
     void makeNewBall();
     void connect();
-    void listen(GamePlayer* player);
+    void listen();
+    void extractFromPackets(Packet packet, GamePlayer* player, Ball* ball);
 
 
 };

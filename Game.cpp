@@ -14,17 +14,19 @@ Game::Game() {
     conT.join();
 
 
-    std::thread listenT;
+
     if(this->packetTypes == PacketTypes::SERVER)
     {
-        listenT = std::thread(&Game::listen,this,this->player2);
+        std::thread listenT(&Game::listen,this,this->player2);
+        listenT.join();
     }
     else
     {
-        listenT = std::thread(&Game::listen,this,this->player1);
+        std::thread listenT(&Game::listen,this,this->player1);
+        listenT.join();
     }
 
-    listenT.join();
+
 
     Play(&window);
 }
@@ -236,7 +238,7 @@ void Game::connect() {
         }
     }
 }
-void Game::listen(GamePlayer* player) {
+void Game::listen() {
 
     Packet packet;
     while(this->con->getConnected())
@@ -244,10 +246,33 @@ void Game::listen(GamePlayer* player) {
         unique_lock<std::mutex> loc(mutex);
         if(this->con->getSocket().receive(packet) == Socket::Done)
         {
-            this->con->extractFromPackets(packet, player, ball);
+            if(this->packetTypes == PacketTypes::SERVER)
+            {
+                extractFromPackets(packet, this->player2, ball);
+            } else
+            {
+                extractFromPackets(packet, this->player1, ball);
+            }
+
             loc.unlock();
         }
     }
+}
+
+void Game::extractFromPackets(Packet packet, GamePlayer* player, Ball* ball)
+{
+    int packetType;
+    float firstPacketInfo, secondPacketInfo;
+    packet >> packetType >> firstPacketInfo >> secondPacketInfo;
+    switch (packetType) {
+        case 3:
+            player->setCurrentPositions((double)firstPacketInfo, (double)secondPacketInfo);
+            break;
+        case 4:
+            ball->redrawToPos((double)firstPacketInfo, (double)secondPacketInfo);
+            break;
+    }
+
 }
 
 
