@@ -92,13 +92,16 @@ void Connection::setConnected(bool condition) {
     Connection::connected = condition;
 }
 
-void Connection::listen(GamePlayer* player, Ball* ball) {
+void Connection::listen(GamePlayer* player, Ball* ball, mutex* mutex) {
+
     Packet packet;
     while(this->connected)
     {
+        unique_lock<std::mutex> loc(*mutex);
         if(this->socket.receive(packet) == Socket::Done)
         {
             extractFromPackets(packet, player, ball);
+            loc.unlock();
         }
     }
 }

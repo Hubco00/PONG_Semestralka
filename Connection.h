@@ -11,6 +11,7 @@
 #include "GamePlayer.h"
 #include "Ball.h"
 #include "PacketTypes.h"
+#include <mutex>
 using namespace std;
 using namespace sf;
 using namespace Pong;
@@ -49,7 +50,7 @@ public:
 
     TcpSocket &getSocket();
 
-    void listen(GamePlayer* player, Ball* ball);
+    void listen(GamePlayer* player, Ball* ball, mutex* mutex);
 
     void setIpAddress(const IpAddress &ipAddress);
 

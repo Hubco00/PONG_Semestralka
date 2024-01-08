@@ -15,11 +15,11 @@ Game::Game() {
 
     if(this->packetTypes == PacketTypes::SERVER)
     {
-        this->listenn = std::thread(&Connection::listen, this->con, this->player2, this->ball);
+        this->listenn = std::thread(&Connection::listen, this->con, this->player2, this->ball, &this->mutex);
     }
     else
     {
-        this->listenn = std::thread(&Connection::listen, this->con, this->player1, this->ball);
+        this->listenn = std::thread(&Connection::listen, this->con, this->player1, this->ball, &this->mutex);
     }
 
     this->listenn.join();
@@ -193,6 +193,7 @@ void Game::keyInput(Keyboard::Key key) {
 }
 
 void Game::connect() {
+    unique_lock<std::mutex> loc(this->mutex);
     this->con = new Connection(PORT);
 
     cout << "Enter 's' to be a server and 'c' to be a client." << endl;
@@ -215,6 +216,7 @@ void Game::connect() {
 
         cout << "Client connected." << endl;
         this->con->setConnected(true);
+        loc.unlock();
     } else if (input == "c") {
         cout << "Enter IP address of your host: ";
         string hostIP;
@@ -224,9 +226,11 @@ void Game::connect() {
         if (con->connect(IpAddress(hostIP))) {
             cout << "Connected to server." << endl;
             this->con->setConnected(true);
+            loc.unlock();
         } else {
             cerr << "Failed to connect to server." << endl;
             this->con->setConnected(false);
+            loc.unlock();
         }
     }
 }
