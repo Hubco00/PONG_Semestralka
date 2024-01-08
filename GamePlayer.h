@@ -15,16 +15,14 @@ private:
     double initialPositionX;
     double currentPositionY;
     double initialPositionY;
+    int winnedGames = 0;
     int playerScore = 0;
     RectangleShape player;
 
 public:
-    //Konstruktor a destruktor
     GamePlayer(float startX, float startY);
     ~GamePlayer();
 
-    //Getre ktore su cost kedze iba vytahuju data z premennych
-    double getPositionX() const { return currentPositionX; };
     double getPositionY() const { return currentPositionY; };
     int getScore() const { return playerScore; };
 
@@ -39,12 +37,14 @@ public:
 
     void setPlayerScore(int playerScore);
 
-    // Seter
+    int getWinnedGames() const;
+
+    void setWinnedGames(int winnedGames);
+
     void plusScore();
+    void plusWinning();
 
     void setCurrentPositions(double currentPositionX, double currentPositionY);
-
-
 };
 
 

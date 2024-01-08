@@ -11,7 +11,7 @@ namespace Pong {
     class Ball {
     private:;
         CircleShape ball;
-        double movementX = 1;
+        double movementX = 2;
         double movementY = 0;
         double posX;
         double posY;
@@ -25,26 +25,16 @@ namespace Pong {
         void redrawToPos(double x, double y);
         FloatRect getBoundsOfBall();
         double getMovementX() const;
-
         void setMovementXMinus();
         void setMovementXPlus();
-
         double getMovementY() const;
-
         void setMovementYMinus();
         void setMovementYPLus();
-
         double getPosX() const;
-
         void setPosX(double startPosX);
-
         double getPosY() const;
-
         void setPosY(double startPosY);
-
         void updateMovementOfBall(GamePlayer* player1, GamePlayer* player2, RenderWindow* window);
-
-
     };
 }
 

@@ -74,4 +74,17 @@ void GamePlayer::setPlayerScore(int playerScore) {
     this->playerScore = playerScore;
 }
 
+int GamePlayer::getWinnedGames() const {
+    return winnedGames;
+}
+
+void GamePlayer::setWinnedGames(int winnedGames) {
+    this->winnedGames += winnedGames;
+}
+
+void GamePlayer::plusWinning() {
+    this->winnedGames++;
+}
+
+
 

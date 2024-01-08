@@ -8,7 +8,6 @@
 #include "Ball.h"
 #include "GamePlayer.h"
 #include "PacketTypes.h"
-#include "Connection.h"
 #include <SFML/System.hpp>
 #include "thread"
 #include "mutex"
@@ -23,19 +22,14 @@ private:
     int height = 500;
     int width = 750;
     Ball* ball;
-    Ball* secondBall;
     GamePlayer* player1;
     GamePlayer* player2;
+    Font font;
     Text scorePlayer1;
     Text scorePlayer2;
-    Font font;
-    bool end;
+    Text winnedGames1;
+    Text winnedGames2;
     PacketTypes packetTypes;
-    //Connection* con;
-    mutex mutex;
-    queue<int> pocetGul;
-    condition_variable* isFull;
-    condition_variable* isEmpty;
     TcpListener listener;
     TcpSocket socket;
     IpAddress ipAddress;
@@ -49,16 +43,14 @@ public:
     void drawAll(RenderWindow *window);
     void setFont(RenderWindow* window);
     void drawNew(RenderWindow* window, double x, double y);
-    void drawNewScore(RenderWindow* window);
     void Play(RenderWindow* window);
-    void keyInput(Keyboard::Key key);
-    void makeNewBall();
+    void keyInput(RenderWindow* window);
     void connect();
     void listen();
     void send(PacketTypes packetTypes, float firstInfo, float secondInfo);
     void extractFromPackets(Packet packet, GamePlayer* player, Ball* ball);
-
-
+    void setNewWinner(GamePlayer* player, RenderWindow* window);
+    void checkIfWinner(RenderWindow* window);
 };
 
 

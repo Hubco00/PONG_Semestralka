@@ -7,7 +7,6 @@
 using namespace std;
 Game::Game() {
     RenderWindow window;
-    this->end = false;
     drawAll(&window);
     this->socket.setBlocking(false);
     std::thread conT(&Game::connect, this);
@@ -15,13 +14,13 @@ Game::Game() {
 
     listeningThread = std::thread(&Game::listen,this);
 
+
     Play(&window);
 }
 
 Game::~Game() {
    // delete this->con;
     delete this->ball;
-    delete this->secondBall;
 }
 
 void Game::drawAll(RenderWindow *window) {
@@ -34,7 +33,6 @@ void Game::drawAll(RenderWindow *window) {
     this->player2->render(window);
     this->ball->draw(window, this->ball->getPosX(), this->ball->getPosY());
 
-    this->secondBall = new Ball((this->width / 2), (this->height/2));
 
     this->setFont(window);
     window->display();
@@ -47,21 +45,35 @@ void Game::setFont(RenderWindow *window) {
     }
     this->scorePlayer1.setFont(this->font);
     this->scorePlayer2.setFont(this->font);
+    this->winnedGames1.setFont(this->font);
+    this->winnedGames2.setFont(this->font);
 
     this->scorePlayer1.setCharacterSize(20);
     this->scorePlayer2.setCharacterSize(20);
+    this->winnedGames1.setCharacterSize(20);
+    this->winnedGames2.setCharacterSize(20);
 
     this->scorePlayer1.setString(to_string(this->player1->getScore()));
     this->scorePlayer2.setString(to_string(this->player2->getScore()));
+    this->winnedGames1.setString(to_string(this->player1->getWinnedGames()));
+    this->winnedGames2.setString(to_string(this->player1->getWinnedGames()));
 
     this->scorePlayer1.setFillColor(Color::White);
     this->scorePlayer2.setFillColor(Color::White);
+    this->winnedGames1.setFillColor(Color::White);
+    this->winnedGames2.setFillColor(Color::White);
 
     this->scorePlayer1.setPosition((width/2) - 50, 5);
     this->scorePlayer2.setPosition((width/2) + 50, 5);
+    this->winnedGames1.setPosition((width/2) - 300, 5);
+    this->winnedGames2.setPosition((width/2) + 300, 5);
+
+
 
     window->draw(this->scorePlayer1);
     window->draw(this->scorePlayer2);
+    window->draw(this->winnedGames1);
+    window->draw(this->winnedGames2);
 
 
 }
@@ -73,8 +85,12 @@ void Game::drawNew(RenderWindow *window, double x, double y) {
     this->ball->draw(window, x, y);
     this->scorePlayer1.setString(to_string(this->player1->getScore()));
     this->scorePlayer2.setString(to_string(this->player2->getScore()));
+    this->winnedGames1.setString(to_string(this->player1->getWinnedGames()));
+    this->winnedGames2.setString(to_string(this->player2->getWinnedGames()));
     window->draw(this->scorePlayer1);
     window->draw(this->scorePlayer2);
+    window->draw(this->winnedGames1);
+    window->draw(this->winnedGames2);
     window->display();
 }
 
@@ -88,12 +104,12 @@ void Game::Play(RenderWindow* window) {
             if (event.type == Event::Closed){
                 window->close();
             }
-            if (event.type == Event::KeyPressed){
-                keyInput(event.key.code);
-            }
-        }
-        if(!end) {
 
+        }
+
+
+            std::thread keyT(&Game::keyInput,this, window);
+            keyT.join();
             if (this->packetTypes == PacketTypes::SERVER) {
                 this->send(PacketTypes::BALL, (float) this->ball->getPosX(), (float) this->ball->getPosY());
                 ball->updateMovementOfBall(this->player1, this->player2, window);
@@ -125,65 +141,42 @@ void Game::Play(RenderWindow* window) {
                                         (window->getSize().y / 2) -
                                         (this->ball->getBoundsOfBall().height / 2));
             }
+            checkIfWinner(window);
 
         }
-    }
+
+
     listeningThread.join();
 }
 
-void Game::drawNewScore(RenderWindow* window) {
 
-    window->display();
-}
-
-void Game::keyInput(Keyboard::Key key) {
+void Game::keyInput(RenderWindow* window) {
 //pohyby W a S
-    switch (key) {
-        case Keyboard::W:
-            if (this->packetTypes == PacketTypes::SERVER && player1->getPositionY() > 0) {
-                player1->ascend();
-                this->send(PacketTypes::PLAYER,0,player1->getPositionY());
+
+    if (Keyboard::isKeyPressed(Keyboard::W)) {
+        if (this->packetTypes == PacketTypes::SERVER && player1->getPositionY() > 0) {
+            player1->ascend();
+            this->send(PacketTypes::PLAYER, 0, player1->getPositionY());
 
 
-            } else if (this->packetTypes == PacketTypes::CLIENT && player2->getPositionY() > 0){
-                player2->ascend();
-                this->send(PacketTypes::PLAYER,width-8,player2->getPositionY());
+        } else if (this->packetTypes == PacketTypes::CLIENT && player2->getPositionY() > 0) {
+            player2->ascend();
+            this->send(PacketTypes::PLAYER, width - 8, player2->getPositionY());
 
-            }
-            break;
-        case Keyboard::S:
-            if (this->packetTypes == PacketTypes::SERVER && player1->getPositionY()+50 < height) {
-                player1->descend();
-                this->send(PacketTypes::PLAYER,0,player1->getPositionY());
+        }
+    } else if (Keyboard::isKeyPressed(Keyboard::S)) {
+        if (this->packetTypes == PacketTypes::SERVER && player1->getPositionY() + 50 < height) {
+            player1->descend();
+            this->send(PacketTypes::PLAYER, 0, player1->getPositionY());
 
-            } else if (this->packetTypes == PacketTypes::CLIENT && player2->getPositionY()+50 < height){
-                player2->descend();
-                this->send(PacketTypes::PLAYER,width-8,player2->getPositionY());
-            }
-            break;
-        case Keyboard::R:
-            if (this->end)
-            {
-                if(this->packetTypes == PacketTypes::SERVER)
-                {
-                    this->send(PacketTypes::PLAYER,0,0);
-                } else
-                {
-                    this->send(PacketTypes::PLAYER,width-8,0);
-                }
-
-                this->ball->setPosX(0);
-                this->ball->setPosY(0);
-                player1->resetPosition();
-                player2->resetPosition();
-                player1->resetScore();
-                player2->resetScore();
-                this->end = false;
-            }
-        default:
-            break;
+        } else if (this->packetTypes == PacketTypes::CLIENT && player2->getPositionY() + 50 < height) {
+            player2->descend();
+            this->send(PacketTypes::PLAYER, width - 8, player2->getPositionY());
+        }
     }
 }
+
+
 
 void Game::connect() {
 
@@ -265,6 +258,24 @@ void Game::send(PacketTypes packetTypes, float firstInfo, float secondInfo)
     Packet packet;
     packet << (int)packetTypes << firstInfo << secondInfo;
     socket.send(packet);
+}
+
+void Game::checkIfWinner(RenderWindow* window) {
+    if(this->player1->getScore() == 1)
+    {
+        setNewWinner(this->player1, window);
+    }
+    else if(this->player2->getScore() == 1)
+    {
+        setNewWinner(this->player2, window);
+    }
+    this->player1->resetScore();
+    this->player2->resetScore();
+}
+
+void Game::setNewWinner(GamePlayer* player, RenderWindow* window) {
+    player->plusWinning();
+
 }
 
 
