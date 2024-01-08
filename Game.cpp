@@ -21,6 +21,8 @@ Game::Game() {
 Game::~Game() {
    // delete this->con;
     delete this->ball;
+    delete this->player1;
+    delete this->player2;
 }
 
 void Game::drawAll(RenderWindow *window) {
@@ -261,11 +263,11 @@ void Game::send(PacketTypes packetTypes, float firstInfo, float secondInfo)
 }
 
 void Game::checkIfWinner(RenderWindow* window) {
-    if(this->player1->getScore() == 1)
+    if(this->player1->getScore() == 5)
     {
         setNewWinner(this->player1, window);
     }
-    else if(this->player2->getScore() == 1)
+    else if(this->player2->getScore() == 5)
     {
         setNewWinner(this->player2, window);
     }
