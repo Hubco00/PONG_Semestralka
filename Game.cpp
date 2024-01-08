@@ -266,18 +266,20 @@ void Game::checkIfWinner(RenderWindow* window) {
     if(this->player1->getScore() == 5)
     {
         setNewWinner(this->player1, window);
+        this->player1->resetScore();
+        this->player2->resetScore();
     }
     else if(this->player2->getScore() == 5)
     {
         setNewWinner(this->player2, window);
+        this->player1->resetScore();
+        this->player2->resetScore();
     }
-    this->player1->resetScore();
-    this->player2->resetScore();
+
 }
 
 void Game::setNewWinner(GamePlayer* player, RenderWindow* window) {
     player->plusWinning();
-
 }
 
 
