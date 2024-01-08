@@ -42,9 +42,10 @@ public:
     bool sendConnectEstablish(string message);
     bool recieveEstablish(string& message);
 
-    bool isConnected() const;
+    bool getConnected();
 
     void setConnected(bool condition);
+
 
     const IpAddress &getIpAddress() const;
 

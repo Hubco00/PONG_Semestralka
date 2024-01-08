@@ -52,7 +52,7 @@ public:
     void keyInput(Keyboard::Key key);
     void makeNewBall();
     void connect();
-    void listen();
+    void listen(GamePlayer* player);
 
 
 };

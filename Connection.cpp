@@ -84,27 +84,15 @@ int Connection::recievePacketScoreInfo() {
     return score;
 }
 
-bool Connection::isConnected() const {
-    return connected;
+bool Connection::getConnected() {
+    return this->connected;
 }
 
 void Connection::setConnected(bool condition) {
-    Connection::connected = condition;
+    this->connected = condition;
 }
 
-void Connection::listen(GamePlayer* player, Ball* ball, mutex* mutex) {
 
-    Packet packet;
-    while(this->connected)
-    {
-        unique_lock<std::mutex> loc(*mutex);
-        if(this->socket.receive(packet) == Socket::Done)
-        {
-            extractFromPackets(packet, player, ball);
-            loc.unlock();
-        }
-    }
-}
 
 void Connection::extractFromPackets(Packet packet, GamePlayer* player, Ball* ball)
 {
@@ -121,3 +109,4 @@ void Connection::extractFromPackets(Packet packet, GamePlayer* player, Ball* bal
     }
 
 }
+

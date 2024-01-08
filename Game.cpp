@@ -15,11 +15,11 @@ Game::Game() {
 
     if(this->packetTypes == PacketTypes::SERVER)
     {
-        this->listenn = std::thread(&Connection::listen, this->con, this->player2, this->ball, &this->mutex);
+        this->listenn = std::thread(&Game::listen,this,this->player2);
     }
     else
     {
-        this->listenn = std::thread(&Connection::listen, this->con, this->player1, this->ball, &this->mutex);
+        this->listenn = std::thread(&Game::listen,this,this->player1);
     }
 
     this->listenn.join();
@@ -234,10 +234,18 @@ void Game::connect() {
         }
     }
 }
+void Game::listen(GamePlayer* player) {
 
-void Game::listen() {
-
+    Packet packet;
+    while(this->con->getConnected())
+    {
+        unique_lock<std::mutex> loc(mutex);
+        if(this->con->getSocket().receive(packet) == Socket::Done)
+        {
+            this->con->extractFromPackets(packet, player, ball);
+            loc.unlock();
+        }
+    }
 }
-
 
 
